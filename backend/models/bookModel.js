@@ -32,26 +32,28 @@ class Book {
 
   static searchByTitle(title, callback) {
     db.all(`
-      SELECT books.*, borrows.id as borrowId
+      SELECT books.*, borrows.id as borrowId, borrows.user_id as borrowedBy
       FROM books
       LEFT JOIN borrows ON books.id = borrows.book_id AND borrows.return_date IS NULL
       WHERE books.title LIKE ?
     `, [`%${title}%`], (err, rows) => {
       if (err) {
-        callback(err);
+        callback(err); 
       } else {
-        callback(null, rows);
+        callback(null, rows); 
       }
     });
   }
+  
 
   static getAll(callback) {
     db.all(`
-      SELECT books.*, borrows.id as borrowId
+      SELECT books.*, borrows.id as borrowId, borrows.user_id as borrowedBy
       FROM books
       LEFT JOIN borrows ON books.id = borrows.book_id AND borrows.return_date IS NULL
     `, [], callback);
   }
+  
 
   static getById(id, callback) {
     db.get(`SELECT * FROM books WHERE id = ?`, [id], callback);

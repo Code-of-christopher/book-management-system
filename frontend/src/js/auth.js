@@ -57,6 +57,7 @@ export async function renderDashboard() {
 
   try {
     const books = await getBooks();
+    console.log(books);
     renderBookList(books);
 
     if (role === "librarian") {
@@ -157,15 +158,13 @@ export function renderUserForm(user = {}) {
   `;
 }
 
-export function renderSearchResults(books) {
-  const searchResults = document.getElementById("search-results");
-  const bookList = document.getElementById("book-list");
+ export function renderSearchResults(books) {
   const userRole = localStorage.getItem("role");
-  const userList = document.getElementById("user-list");
-  bookList.innerHTML = "";
-  userList.innerHTML = "";
+  const userId = localStorage.getItem("userId");
+  const searchResults = document.getElementById("search-results");
+
   searchResults.innerHTML = `
-    <h2>Search List</h2>
+    <h2>Search Results</h2>
     <table>
       <thead>
         <tr>
@@ -175,33 +174,36 @@ export function renderSearchResults(books) {
         </tr>
       </thead>
       <tbody>
-      ${books
-        .map((book) => `
-        <tr>
-          <td>${book.title}</td>
-          <td>${book.isbn}</td>
-          <td>
-            ${userRole === "patron" ? `
-              ${!book.borrowId ? `<button class="borrow-book" data-id="${book.id}">Borrow</button>` : ""}
-              ${book.borrowId ? `<button class="return-book" data-id="${book.borrowId}">Return</button>` : ""}
-              ${book.borrowId ? `<button class="renew-book" data-id="${book.borrowId}">Renew</button>` : ""}
-            ` : ""}
-            ${userRole === "librarian" ? `
-              <button class="edit-book" data-id="${book.id}">Edit</button>
-              <button class="delete-book" data-id="${book.id}">Delete</button>
-            ` : ""}
-          </td>
-        </tr>
-      `).join("")}
+        ${books.map(book => `
+          <tr>
+            <td>${book.title}</td>
+            <td>${book.isbn}</td>
+            <td>
+              ${userRole === "patron" ?
+                  (book.borrowId ? 
+                      (book.borrowedBy ===  parseInt(userId, 10) ?
+                          `<button class="return-book" data-id="${book.borrowId}">Return</button>
+                          <button class="renew-book" data-id="${book.borrowId}">Renew</button>`
+                          : "Book not available")
+                      : `<button class="borrow-book" data-id="${book.id}">Borrow</button>`)
+                  : ""}
+
+              ${userRole === "librarian" ?
+                `<button class="edit-book" data-id="${book.id}">Edit</button>
+                <button class="delete-book" data-id="${book.id}">Delete</button>`
+                : ""}
+            </td>
+          </tr>
+        `).join("")}
       </tbody>
-    </table>
-    <button id="show-dashboard">Back to Dashboard</button>
-  `;
+    </table>`;
 }
 
 function renderBookList(books) {
   const userRole = localStorage.getItem("role");
+  const userId = localStorage.getItem("userId");
   const bookList = document.getElementById("book-list");
+
   bookList.innerHTML = `
     <h2>Book List</h2>
     <table>
@@ -213,27 +215,29 @@ function renderBookList(books) {
         </tr>
       </thead>
       <tbody>
-      ${books
-        .map((book) => `
-        <tr>
-          <td>${book.title}</td>
-          <td>${book.isbn}</td>
-          <td>
-            ${userRole === "patron" ? `
-              ${!book.borrowId ? `<button class="borrow-book" data-id="${book.id}">Borrow</button>` : ""}
-              ${book.borrowId ? `<button class="return-book" data-id="${book.borrowId}">Return</button>` : ""}
-              ${book.borrowId ? `<button class="renew-book" data-id="${book.borrowId}">Renew</button>` : ""}
-            ` : ""}
-            ${userRole === "librarian" ? `
-              <button class="edit-book" data-id="${book.id}">Edit</button>
-              <button class="delete-book" data-id="${book.id}">Delete</button>
-            ` : ""}
-          </td>
-        </tr>
-      `).join("")}
+        ${books.map(book => `
+          <tr>
+            <td>${book.title}</td>
+            <td>${book.isbn}</td>
+            <td>
+              ${userRole === "patron" ?
+                (book.borrowId ? 
+                    (book.borrowedBy ===  parseInt(userId, 10) ?
+                        `<button class="return-book" data-id="${book.borrowId}">Return</button>
+                        <button class="renew-book" data-id="${book.borrowId}">Renew</button>`
+                        : "Book not available")
+                    : `<button class="borrow-book" data-id="${book.id}">Borrow</button>`)
+                : ""}
+
+              ${userRole === "librarian" ?
+                `<button class="edit-book" data-id="${book.id}">Edit</button>
+                <button class="delete-book" data-id="${book.id}">Delete</button>`
+                : ""}
+            </td>
+          </tr>
+        `).join("")}
       </tbody>
-    </table>
-  `;
+    </table>`;
 }
 
 

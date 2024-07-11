@@ -51,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       localStorage.removeItem("userId");
-      localStorage.removeItem("borrowid");
       renderLoginPage();
     } else if (e.target.classList.contains("borrow-book")) {
       const bookId = e.target.dataset.id;
